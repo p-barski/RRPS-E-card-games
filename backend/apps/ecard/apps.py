@@ -1,0 +1,6 @@
+from django.apps import AppConfig
+
+
+class EcardConfig(AppConfig):
+    name = 'apps.ecard'
+    label = 'ecard'
