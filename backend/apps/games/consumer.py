@@ -21,7 +21,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.room_code = self.scope["url_route"]["kwargs"]["code"]
         self.player_id = player_id_from_asgi_scope(self.scope)
-        self._last_move_at = 0.0
+        self._last_move_at: float | None = None
         self._bot_move_scheduled = False
         self._bot_task: asyncio.Task | None = None
         # Guards the read-apply-save-broadcast sequence: the bot's delayed
@@ -91,7 +91,7 @@ class GameConsumer(AsyncJsonWebsocketConsumer):
             return
 
         now = time.monotonic()
-        if now - self._last_move_at < settings.MIN_SECONDS_BETWEEN_MOVES:
+        if self._last_move_at is not None and now - self._last_move_at < settings.MIN_SECONDS_BETWEEN_MOVES:
             await self.send_json({"type": "error", "message": "You're moving too fast."})
             return
         self._last_move_at = now
